@@ -14,7 +14,7 @@ public class StudentPlayer extends PentagoPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("xxxxxxxxx");
+        super("260835976");
     }
 
     /**
@@ -28,8 +28,8 @@ public class StudentPlayer extends PentagoPlayer {
         // strategies...
         MyTools.getSomething();
 
-        // Is random the best you can do?
-        Move myMove = boardState.getRandomMove();
+        // Find move
+        Move myMove = MonteCarloTreeSearch.findNextMove(boardState);
 
         // Return your move to be processed by the server.
         return myMove;

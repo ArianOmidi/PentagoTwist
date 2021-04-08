@@ -1,0 +1,14 @@
+# Server version 0.08 running on arians-mbp:8123
+# Game ID: 7
+# Board class: pentago_twist.PentagoBoard
+# Timeout: 20000
+# First Move Timeout: 30000
+# Date: Wed Apr 07 22:37:38 EDT 2021
+# Player 1: Player-0, 'Human', running on arians-mbp
+# Player 2: Player-1, 'RandomPlayer', running on arians-mbp
+START Player-0 Human
+START Player-1 RandomPlayer
+1 1 0 0 0
+4 4 2 0 1
+GAMEOVER USER CANCEL UNDECIDED
+# Game ended: Wed Apr 07 22:38:13 EDT 2021
