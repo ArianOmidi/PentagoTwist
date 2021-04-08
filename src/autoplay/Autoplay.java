@@ -34,7 +34,7 @@ public class Autoplay {
         }
 
         try {
-            ProcessBuilder server_pb = new ProcessBuilder("java", "-cp", "bin", "boardgame.Server", "-ng", "-k");
+            ProcessBuilder server_pb = new ProcessBuilder("java", "-cp", "bin", "boardgame.Server", "-ng", "-q", "-k");
             server_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             Process server = server_pb.start();
@@ -43,11 +43,11 @@ public class Autoplay {
 //                    "boardgame.Client", "pentago_twist.RandomPentagoPlayer");
 //            client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             ProcessBuilder client1_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-                    "boardgame.Client", "student_player.v1.StudentPlayer");
+                    "boardgame.Client", "student_player.StudentPlayer");
             client1_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             ProcessBuilder client2_pb = new ProcessBuilder("java", "-cp", "bin", "-Xms520m", "-Xmx520m",
-                    "boardgame.Client", "student_player.StudentPlayer");
+                    "boardgame.Client", "student_player.v2.StudentPlayer");
             client2_pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 
             for (int i = 0; i < n_games; i++) {

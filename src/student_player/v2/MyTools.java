@@ -1,4 +1,4 @@
-package student_player;
+package student_player.v2;
 
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
@@ -73,7 +73,7 @@ public class MyTools {
     public static class Tree {
         Node root;
 
-        public Tree(){
+        public Tree(PentagoBoardState rootState){
             this.root = new Node();
         }
     }

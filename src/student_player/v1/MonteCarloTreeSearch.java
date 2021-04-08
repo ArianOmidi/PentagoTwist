@@ -14,7 +14,7 @@ public class MonteCarloTreeSearch {
     static int curPlayer;
     static int opponent;
 
-    private static Random rand = new Random(2019);
+    private static Random rand = new Random();
 
     public static class Node {
         PentagoBoardState state;
