@@ -1,4 +1,4 @@
-package student_player;
+package student_player.v1;
 
 import boardgame.Board;
 import boardgame.Move;
@@ -8,7 +8,7 @@ import pentago_twist.PentagoMove;
 import java.util.*;
 
 public class MonteCarloTreeSearch {
-    static final long TIME_LIMIT = 1500;
+    static final long TIME_LIMIT = 1950;
     static final int WIN_SCORE = 10;
 
     static int curPlayer;
@@ -128,8 +128,6 @@ public class MonteCarloTreeSearch {
 //            System.out.println("PROPAGATING...");
             backPropogation(nodeToExplore, playoutResult);
         }
-
-//        System.out.println("======= Child Size: " + rootNode.childArray.size() + " =======");
 
         Node winnerNode = rootNode.getChildWithMaxScore();
         tree.root = winnerNode;

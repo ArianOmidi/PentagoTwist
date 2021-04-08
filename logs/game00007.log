@@ -3,12 +3,35 @@
 # Board class: pentago_twist.PentagoBoard
 # Timeout: 20000
 # First Move Timeout: 30000
-# Date: Wed Apr 07 22:37:38 EDT 2021
-# Player 1: Player-0, 'Human', running on arians-mbp
-# Player 2: Player-1, 'RandomPlayer', running on arians-mbp
-START Player-0 Human
-START Player-1 RandomPlayer
-1 1 0 0 0
-4 4 2 0 1
-GAMEOVER USER CANCEL UNDECIDED
-# Game ended: Wed Apr 07 22:38:13 EDT 2021
+# Date: Thu Apr 08 02:30:45 EDT 2021
+# Player 1: Player-0, '260692352', running on localhost
+# Player 2: Player-1, '260835976', running on localhost
+START Player-0 260692352
+START Player-1 260835976
+0 0 0 0 0
+0 0 0 0 1
+0 0 0 0 0
+0 0 1 0 1
+0 1 1 0 0
+0 3 2 0 1
+0 4 0 1 0
+0 5 2 0 1
+1 0 0 1 0
+1 0 0 0 1
+1 0 0 0 0
+1 1 0 1 1
+1 3 1 0 0
+0 3 0 0 1
+1 3 0 0 0
+2 4 2 1 1
+1 4 0 1 0
+2 3 1 1 1
+3 0 3 0 0
+3 1 0 0 1
+3 2 1 1 0
+3 3 0 0 1
+4 5 3 0 0
+3 3 2 0 1
+4 3 1 0 0
+GAMEOVER WINNER 0
+# Game ended: Thu Apr 08 02:31:10 EDT 2021

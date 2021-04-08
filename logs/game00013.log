@@ -3,10 +3,10 @@
 # Board class: pentago_twist.PentagoBoard
 # Timeout: 20000
 # First Move Timeout: 30000
-# Date: Wed Apr 07 22:49:32 EDT 2021
-# Player 1: Player-0, 'Human', running on arians-mbp
-# Player 2: Player-1, '260835976', running on arians-mbp
-START Player-0 Human
+# Date: Thu Apr 08 02:34:16 EDT 2021
+# Player 1: Player-0, '260692352', running on localhost
+# Player 2: Player-1, '260835976', running on localhost
+START Player-0 260692352
 START Player-1 260835976
-1 1 0 0 0
-4 4 2 0 1
+0 0 0 0 0
+4 4 1 0 1
