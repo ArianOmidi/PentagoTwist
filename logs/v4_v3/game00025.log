@@ -1,0 +1,23 @@
+# Server version 0.08 running on arians-mbp:8123
+# Game ID: 25
+# Board class: pentago_twist.PentagoBoard
+# Timeout: 20000
+# First Move Timeout: 30000
+# Date: Thu Apr 08 17:22:05 EDT 2021
+# Player 1: Player-0, '260835976-v3', running on localhost
+# Player 2: Player-1, '260835976', running on localhost
+START Player-0 260835976-v3
+START Player-1 260835976
+1 4 2 1 0
+4 4 2 0 1
+2 0 1 0 0
+4 1 2 0 1
+1 1 1 1 0
+3 4 0 1 1
+2 4 1 1 0
+0 0 1 0 1
+1 5 0 1 0
+3 3 1 0 1
+1 2 1 0 0
+GAMEOVER WINNER 0
+# Game ended: Thu Apr 08 17:22:27 EDT 2021

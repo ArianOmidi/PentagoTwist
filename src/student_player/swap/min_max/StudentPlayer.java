@@ -38,7 +38,7 @@ public class StudentPlayer extends PentagoPlayer {
             return winningMove;
         }
 
-        final int DEPTH = 3;
+        final int DEPTH = 8;
         ABPruningOptimizer optimizer = new ABPruningOptimizer();
         Move myMove = optimizer.getNextBestMove(DEPTH, pentagoBoardState, pentagoBoardState.getTurnPlayer());
         float timeElapsed = (System.currentTimeMillis() - start) / 1000f;

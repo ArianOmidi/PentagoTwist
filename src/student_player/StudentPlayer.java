@@ -3,13 +3,19 @@ package student_player;
 import boardgame.Board;
 import boardgame.Move;
 
+import pentago_twist.PentagoBoard;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
 import pentago_twist.PentagoBoardState;
 import student_player.MyTools.Node;
 import student_player.MyTools.Tree;
+import student_player.mcts.v2.MCTSNode;
 
-import java.util.ArrayList;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
 
 import static student_player.MyTools.*;
 
@@ -18,6 +24,9 @@ public class StudentPlayer extends PentagoPlayer {
 
     static int curPlayer;
     static int opponent;
+
+    boolean isFirstMove = true;
+    static Tree tree;
 
     /**
      * You must modify this constructor to return your student number. This is
@@ -34,8 +43,24 @@ public class StudentPlayer extends PentagoPlayer {
      * make decisions.
      */
     public Move chooseMove(PentagoBoardState boardState) {
+        // define the time when search is terminated
+        long endTime;
+
+        if (isFirstMove) {
+            endTime = System.currentTimeMillis() + FIRST_MOVE_TIME_LIMIT;
+            // Do first move shit
+            tree = new Tree();
+            isFirstMove = false;
+        } else {
+            endTime = System.currentTimeMillis() + MOVE_TIME_LIMIT;
+            tree.pruneTree(boardState);
+            if (tree.root == null) {
+                tree = new Tree();
+            }
+        }
+
         // Find move
-        Move myMove = chooseMoveMCTS(boardState);
+        Move myMove = chooseMoveMCTS(boardState, endTime);
 
         // Return your move to be processed by the server.
         return myMove;
@@ -43,16 +68,12 @@ public class StudentPlayer extends PentagoPlayer {
 
     /* ======== Monte Carlo Search Tree Implementation ======== */
 
-    public static Move chooseMoveMCTS(PentagoBoardState boardState) {
-        // define the time when search is terminated
-        long endTime = System.currentTimeMillis() + TIME_LIMIT;
-
+    public static Move chooseMoveMCTS(PentagoBoardState boardState, long endTime) {
         // set curPlayer and opponent
         curPlayer = boardState.getTurnPlayer();
         opponent = (curPlayer == PentagoBoardState.WHITE) ? PentagoBoardState.BLACK: PentagoBoardState.WHITE;
 
-        // create new MCTS tree
-        Tree tree = new Tree();
+        // Tree tree = new Tree();
         tree.root.state = boardState;
 
         while (System.currentTimeMillis() < endTime) {
@@ -78,6 +99,9 @@ public class StudentPlayer extends PentagoPlayer {
 
         // Get child with max score and update the tree
         Node selectedNode = tree.root.getChildWithMaxScore();
+//        System.out.println("\tTree root visits: " + tree.root.visitCount);
+//        System.out.println("\tSelected node visits: " + selectedNode.visitCount);
+//        System.out.println("\t" + tree.root.getChildVisited());
         tree.root = selectedNode;
         return selectedNode.move;
     }
@@ -91,7 +115,7 @@ public class StudentPlayer extends PentagoPlayer {
     }
 
     private static void expandNode(Node node) {
-        ArrayList<PentagoMove> legalMoves = node.state.getAllLegalMoves();
+        List<PentagoMove> legalMoves = node.state.getAllLegalMoves();
 
         for (int i = 0; i < legalMoves.size(); i++) {
             PentagoBoardState childState = (PentagoBoardState) node.state.clone();

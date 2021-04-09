@@ -1,12 +1,14 @@
 package student_player;
 
 import pentago_twist.PentagoBoardState;
+import pentago_twist.PentagoBoardState.Piece;
 import pentago_twist.PentagoMove;
 
 import java.util.*;
 
 public class MyTools {
-    public static final long TIME_LIMIT = 1950;
+    public static final long FIRST_MOVE_TIME_LIMIT = 10000;
+    public static final long MOVE_TIME_LIMIT = 1950;
     public static final int WIN_SCORE = 10;
     public static final double EXPLORATION_PARAMETER = Math.sqrt(2);
 
@@ -66,6 +68,27 @@ public class MyTools {
             return Collections.max(this.childArray, Comparator.comparing(c -> c.winScore));
         }
 
+        public Node getChildWithState(PentagoBoardState state) {
+            for (int i = 0; i < childArray.size(); i++) {
+                if (equalsBoard(childArray.get(i).state, state)){
+                    return childArray.get(i);
+                }
+            }
+
+            return null;
+        }
+
+        public List<Integer> getChildVisited(){
+            ArrayList<Integer> arrayList = new ArrayList<>();
+
+            for (int i = 0; i < childArray.size(); i++) {
+                arrayList.add(childArray.get(i).visitCount);
+            }
+
+            Collections.sort(arrayList);
+
+            return arrayList;
+        }
     }
 
     /* ======== MCTS Tree ======== */
@@ -75,6 +98,11 @@ public class MyTools {
 
         public Tree(){
             this.root = new Node();
+        }
+
+        public void pruneTree(PentagoBoardState state) {
+            this.root = root.getChildWithState(state);
+            this.root.parent = null;
         }
     }
 
@@ -96,6 +124,30 @@ public class MyTools {
                         c.winScore, c.visitCount)));
     }
 
+    /* ======== Helper Functions ======== */
+
+    public static boolean equalsBoard(PentagoBoardState s1, PentagoBoardState s2) {
+        if (s1 == s2) {
+            return true;
+        }
+
+        Piece[][] s1Board = s1.getBoard();
+        Piece[][] s2Board = s2.getBoard();
+        for (int i = 0; i < s1Board.length; i++) {
+            for (int j = 0; j < s1Board[0].length; j++) {
+                if (s1Board[i][j] != s2Board[i][j])
+                    return false;
+            }
+        }
+        if (s1.getTurnPlayer() != s2.getTurnPlayer())
+            return false;
+        if (s1.getWinner() != s2.getWinner())
+            return false;
+        if (s1.getTurnNumber() != s2.getTurnNumber())
+            return false;
+
+        return true;
+    }
 
 }
 
