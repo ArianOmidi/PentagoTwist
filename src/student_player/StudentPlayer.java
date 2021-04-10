@@ -3,18 +3,12 @@ package student_player;
 import boardgame.Board;
 import boardgame.Move;
 
-import pentago_twist.PentagoBoard;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
 import pentago_twist.PentagoBoardState;
 import student_player.MyTools.Node;
 import student_player.MyTools.Tree;
-import student_player.mcts.v2.MCTSNode;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 import static student_player.MyTools.*;
