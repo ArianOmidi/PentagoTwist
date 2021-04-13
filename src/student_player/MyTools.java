@@ -104,6 +104,11 @@ public class MyTools {
             this.root = root.getChildWithState(state);
             this.root.parent = null;
         }
+
+        public void pruneTree(Node node) {
+            this.root = node;
+            this.root.parent = null;
+        }
     }
 
     /* ======== Upper Confidence Tree Functions ======== */

@@ -1,0 +1,17 @@
+# Server version 0.08 running on 192.168.0.174:8123
+# Game ID: 14
+# Board class: pentago_twist.PentagoBoard
+# Timeout: 2000
+# First Move Timeout: 30000
+# Date: Sat Apr 10 23:33:13 EDT 2021
+# Player 1: Player-0, '260835976', running on localhost
+# Player 2: Player-1, 'alpha-beta', running on localhost
+START Player-0 260835976
+START Player-1 alpha-beta
+1 4 0 0 0
+4 4 2 0 1
+2 2 1 0 0
+4 1 2 0 1
+1 1 1 0 0
+GAMEOVER TIMEOUT WINNER 0
+# Game ended: Sat Apr 10 23:33:30 EDT 2021
