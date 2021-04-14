@@ -1,18 +1,17 @@
-package student_player.rave;
+package student_player.tree_reuse;
 
 import boardgame.Board;
 import boardgame.Move;
-import pentago_twist.PentagoBoardState;
+
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
-import student_player.rave.MyTools.*;
+import pentago_twist.PentagoBoardState;
+import student_player.tree_reuse.MyTools.Node;
+import student_player.tree_reuse.MyTools.Tree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static student_player.rave.MyTools.*;
+import static student_player.tree_reuse.MyTools.*;
 
 /** A player file submitted by a student. */
 public class StudentPlayer extends PentagoPlayer {
@@ -20,13 +19,16 @@ public class StudentPlayer extends PentagoPlayer {
     static int curPlayer;
     static int opponent;
 
+    boolean isFirstMove = true;
+    static Tree tree;
+
     /**
      * You must modify this constructor to return your student number. This is
      * important, because this is what the code that runs the competition uses to
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("RAVE");
+        super("tree");
     }
 
     /**
@@ -35,14 +37,24 @@ public class StudentPlayer extends PentagoPlayer {
      * make decisions.
      */
     public Move chooseMove(PentagoBoardState boardState) {
-        long start = System.currentTimeMillis();
+        // define the time when search is terminated
+        long endTime;
+
+        if (isFirstMove) {
+            endTime = System.currentTimeMillis() + FIRST_MOVE_TIME_LIMIT;
+            // Do first move shit
+            tree = new Tree();
+            isFirstMove = false;
+        } else {
+            endTime = System.currentTimeMillis() + MOVE_TIME_LIMIT;
+            tree.pruneTree(boardState);
+            if (tree.root == null) {
+                tree = new Tree();
+            }
+        }
 
         // Find move
-        Move myMove = chooseMoveMCTS(boardState);
-
-        long end = System.currentTimeMillis();
-
-        System.out.format("Move Time: &.2fms" + (end - start));
+        Move myMove = chooseMoveMCTS(boardState, endTime);
 
         // Return your move to be processed by the server.
         return myMove;
@@ -50,16 +62,12 @@ public class StudentPlayer extends PentagoPlayer {
 
     /* ======== Monte Carlo Search Tree Implementation ======== */
 
-    public static Move chooseMoveMCTS(PentagoBoardState boardState) {
-        // define the time when search is terminated
-        long endTime = System.currentTimeMillis() + TIME_LIMIT;
-
+    public static Move chooseMoveMCTS(PentagoBoardState boardState, long endTime) {
         // set curPlayer and opponent
         curPlayer = boardState.getTurnPlayer();
         opponent = (curPlayer == PentagoBoardState.WHITE) ? PentagoBoardState.BLACK: PentagoBoardState.WHITE;
 
-        // create new MCTS tree
-        Tree tree = new Tree();
+        // Tree tree = new Tree();
         tree.root.state = boardState;
 
         while (System.currentTimeMillis() < endTime) {
@@ -85,20 +93,21 @@ public class StudentPlayer extends PentagoPlayer {
 
         // Get child with max score and update the tree
         Node selectedNode = tree.root.getChildWithMaxScore();
-        tree.root = selectedNode;
+        tree.pruneTree(selectedNode);
+
         return selectedNode.move;
     }
 
     private static Node selectPromisingNode(Node rootNode) {
         Node node = rootNode;
         while (!node.childArray.isEmpty()) {
-            node = findBestNode(node);
+            node = findBestNodeWithUCT(node);
         }
         return node;
     }
 
     private static void expandNode(Node node) {
-        ArrayList<PentagoMove> legalMoves = node.state.getAllLegalMoves();
+        List<PentagoMove> legalMoves = node.state.getAllLegalMoves();
 
         for (int i = 0; i < legalMoves.size(); i++) {
             PentagoBoardState childState = (PentagoBoardState) node.state.clone();
@@ -113,9 +122,9 @@ public class StudentPlayer extends PentagoPlayer {
         Node tmp = leafNode;
 
         while (tmp != null) {
-            tmp.visitCount++;
+            tmp.incrementVisit();
             if (winner == curPlayer) {
-                tmp.winCount++;
+                tmp.addScore(WIN_SCORE);
             }
             tmp = tmp.parent;
         }
@@ -125,10 +134,9 @@ public class StudentPlayer extends PentagoPlayer {
         PentagoBoardState tmpState = (PentagoBoardState) node.state.clone();
         PentagoMove tmpMove;
 
-        // todo remove?
         // check if game is over and opponent won
         if (opponent == tmpState.getWinner()) {
-            node.parent.winCount = Integer.MIN_VALUE;
+            node.parent.winScore = Integer.MIN_VALUE;
             return opponent;
         }
         // if game is not over simulate to the end by selecting random moves

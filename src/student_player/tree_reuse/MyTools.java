@@ -1,4 +1,4 @@
-package student_player;
+package student_player.tree_reuse;
 
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoBoardState.Piece;
@@ -9,7 +9,8 @@ import java.util.*;
 public class MyTools {
     public static final long FIRST_MOVE_TIME_LIMIT = 10000;
     public static final long MOVE_TIME_LIMIT = 1950;
-    public static final double EXPLORATION_PARAMETER = Math.sqrt(2) / 7;
+    public static final int WIN_SCORE = 10;
+    public static final double EXPLORATION_PARAMETER = Math.sqrt(2);
 
     private static final Random rand = new Random();
 
@@ -20,19 +21,19 @@ public class MyTools {
         PentagoBoardState state;
         PentagoMove move;
         Node parent;
-        List<Node> children;
+        List<Node> childArray;
         int visitCount;
-        int winCount;
+        double winScore;
 
         public Node(PentagoMove move, PentagoBoardState state, Node parent) {
             this.state = state;
             this.move = move;
 
             this.parent = parent;
-            this.children = new ArrayList<>();
+            this.childArray = new ArrayList<>();
 
             this.visitCount = 0;
-            this.winCount = 0;
+            this.winScore = 0;
         }
 
         public Node() {
@@ -40,31 +41,53 @@ public class MyTools {
             this.move = null;
 
             this.parent = null;
-            this.children = new ArrayList<>();
+            this.childArray = new ArrayList<>();
 
             this.visitCount = 0;
-            this.winCount = 0;
+            this.winScore = 0;
+        }
+
+        // ----- Setters ----- //
+
+        public void incrementVisit(){
+            this.visitCount++;
+        }
+
+        public void addScore(double i){
+            this.winScore += i;
         }
 
         // ----- Getters ----- //
 
         public Node getRandomChild(){
-            if (children.isEmpty()) return null;
-            return children.get(rand.nextInt(children.size()));
+            if (childArray.isEmpty()) return null;
+            return childArray.get(rand.nextInt(childArray.size()));
         }
 
         public Node getChildWithMaxScore() {
-            return Collections.max(this.children, Comparator.comparing(c -> c.winCount));
+            return Collections.max(this.childArray, Comparator.comparing(c -> c.winScore));
         }
 
         public Node getChildWithState(PentagoBoardState state) {
-            for (int i = 0; i < children.size(); i++) {
-                if (equalsBoard(children.get(i).state, state)){
-                    return children.get(i);
+            for (int i = 0; i < childArray.size(); i++) {
+                if (equalsBoard(childArray.get(i).state, state)){
+                    return childArray.get(i);
                 }
             }
 
             return null;
+        }
+
+        public List<Integer> getChildVisited(){
+            ArrayList<Integer> arrayList = new ArrayList<>();
+
+            for (int i = 0; i < childArray.size(); i++) {
+                arrayList.add(childArray.get(i).visitCount);
+            }
+
+            Collections.sort(arrayList);
+
+            return arrayList;
         }
     }
 
@@ -90,20 +113,20 @@ public class MyTools {
 
     /* ======== Upper Confidence Tree Functions ======== */
 
-    private static double uctValue(double totalVisit, double nodeWinScore, double nodeVisit) {
+    private static double uctValue(int totalVisit, double nodeWinScore, int nodeVisit) {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
         }
-        return (nodeWinScore / nodeVisit)
-                + EXPLORATION_PARAMETER * Math.sqrt(Math.log(totalVisit) / nodeVisit);
+        return ((double) nodeWinScore / (double) nodeVisit)
+                + EXPLORATION_PARAMETER * Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
     }
 
     public static Node findBestNodeWithUCT(Node node) {
         int parentVisit = node.visitCount;
         return Collections.max(
-                node.children,
+                node.childArray,
                 Comparator.comparing(c -> uctValue(parentVisit,
-                        c.winCount, c.visitCount)));
+                        c.winScore, c.visitCount)));
     }
 
     /* ======== Helper Functions ======== */

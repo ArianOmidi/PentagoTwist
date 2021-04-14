@@ -1,13 +1,12 @@
+// Code inspired by: https://www.baeldung.com/java-monte-carlo-tree-search
 package student_player;
 
 import boardgame.Board;
 import boardgame.Move;
-
+import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
-import pentago_twist.PentagoBoardState;
-import student_player.MyTools.Node;
-import student_player.MyTools.Tree;
+import student_player.MyTools.*;
 
 import java.util.List;
 
@@ -67,28 +66,27 @@ public class StudentPlayer extends PentagoPlayer {
         curPlayer = boardState.getTurnPlayer();
         opponent = (curPlayer == PentagoBoardState.WHITE) ? PentagoBoardState.BLACK: PentagoBoardState.WHITE;
 
-        // Tree tree = new Tree();
         tree.root.state = boardState;
 
         while (System.currentTimeMillis() < endTime) {
             /* SELECTION : get most promising Node using UCT policy */
-            Node promisingNode = selectPromisingNode(tree.root);
+            Node promisingNode = selection(tree.root);
 
             /* EXPANSION : create the children of the selected node */
             if (!promisingNode.state.gameOver()) {
-                expandNode(promisingNode);
+                expansion(promisingNode);
             }
 
             /* SIMULATION : select child and simulate to terminal node */
             Node nodeToExplore = promisingNode;
-            if (!promisingNode.childArray.isEmpty()) {
+            if (!promisingNode.children.isEmpty()) {
                 nodeToExplore = promisingNode.getRandomChild();
             }
-            int playoutResult = simulateRandomPlayout(nodeToExplore);
+            int playoutResult = simulation(nodeToExplore);
 
             /* BACK PROPAGATION : update the win and visit counts for nodes
                                  on the path to the current node */
-            backPropogation(nodeToExplore, playoutResult);
+            backPropagation(nodeToExplore, playoutResult);
         }
 
         // Get child with max score and update the tree
@@ -98,15 +96,15 @@ public class StudentPlayer extends PentagoPlayer {
         return selectedNode.move;
     }
 
-    private static Node selectPromisingNode(Node rootNode) {
+    private static Node selection(Node rootNode) {
         Node node = rootNode;
-        while (!node.childArray.isEmpty()) {
+        while (!node.children.isEmpty()) {
             node = findBestNodeWithUCT(node);
         }
         return node;
     }
 
-    private static void expandNode(Node node) {
+    private static void expansion(Node node) {
         List<PentagoMove> legalMoves = node.state.getAllLegalMoves();
 
         for (int i = 0; i < legalMoves.size(); i++) {
@@ -114,29 +112,17 @@ public class StudentPlayer extends PentagoPlayer {
             childState.processMove(legalMoves.get(i));
 
             Node child = new Node(legalMoves.get(i), childState, node);
-            node.childArray.add(child);
+            node.children.add(child);
         }
     }
 
-    private static void backPropogation(Node leafNode, int winner) {
-        Node tmp = leafNode;
-
-        while (tmp != null) {
-            tmp.incrementVisit();
-            if (winner == curPlayer) {
-                tmp.addScore(WIN_SCORE);
-            }
-            tmp = tmp.parent;
-        }
-    }
-
-    private static int simulateRandomPlayout(Node node) {
+    private static int simulation(Node node) {
         PentagoBoardState tmpState = (PentagoBoardState) node.state.clone();
         PentagoMove tmpMove;
 
         // check if game is over and opponent won
         if (opponent == tmpState.getWinner()) {
-            node.parent.winScore = Integer.MIN_VALUE;
+            node.parent.winCount = Integer.MIN_VALUE;
             return opponent;
         }
         // if game is not over simulate to the end by selecting random moves
@@ -147,5 +133,16 @@ public class StudentPlayer extends PentagoPlayer {
         return tmpState.getWinner();
     }
 
+    private static void backPropagation(Node leafNode, int winner) {
+        Node tmp = leafNode;
+
+        while (tmp != null) {
+            tmp.visitCount++;
+            if (winner == curPlayer) {
+                tmp.winCount++;
+            }
+            tmp = tmp.parent;
+        }
+    }
 
 }

@@ -1,20 +1,20 @@
-package student_player.rave;
+package student_player.v3.c02;
 
 import boardgame.Board;
 import boardgame.Move;
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
-import student_player.rave.MyTools.*;
+import student_player.v3.c02.MyTools.Node;
+import student_player.v3.c02.MyTools.Tree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import static student_player.rave.MyTools.*;
+import static student_player.v3.c02.MyTools.TIME_LIMIT;
+import static student_player.v3.c02.MyTools.findBestNodeWithUCT;
 
 /** A player file submitted by a student. */
+// Code inspired by: https://www.baeldung.com/java-monte-carlo-tree-search
 public class StudentPlayer extends PentagoPlayer {
 
     static int curPlayer;
@@ -26,7 +26,7 @@ public class StudentPlayer extends PentagoPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("RAVE");
+        super("260835976");
     }
 
     /**
@@ -35,14 +35,8 @@ public class StudentPlayer extends PentagoPlayer {
      * make decisions.
      */
     public Move chooseMove(PentagoBoardState boardState) {
-        long start = System.currentTimeMillis();
-
         // Find move
         Move myMove = chooseMoveMCTS(boardState);
-
-        long end = System.currentTimeMillis();
-
-        System.out.format("Move Time: &.2fms" + (end - start));
 
         // Return your move to be processed by the server.
         return myMove;
@@ -64,11 +58,11 @@ public class StudentPlayer extends PentagoPlayer {
 
         while (System.currentTimeMillis() < endTime) {
             /* SELECTION : get most promising Node using UCT policy */
-            Node promisingNode = selectPromisingNode(tree.root);
+            Node promisingNode = selection(tree.root);
 
             /* EXPANSION : create the children of the selected node */
             if (!promisingNode.state.gameOver()) {
-                expandNode(promisingNode);
+                expansion(promisingNode);
             }
 
             /* SIMULATION : select child and simulate to terminal node */
@@ -76,7 +70,7 @@ public class StudentPlayer extends PentagoPlayer {
             if (!promisingNode.childArray.isEmpty()) {
                 nodeToExplore = promisingNode.getRandomChild();
             }
-            int playoutResult = simulateRandomPlayout(nodeToExplore);
+            int playoutResult = simulation(nodeToExplore);
 
             /* BACK PROPAGATION : update the win and visit counts for nodes
                                  on the path to the current node */
@@ -89,15 +83,15 @@ public class StudentPlayer extends PentagoPlayer {
         return selectedNode.move;
     }
 
-    private static Node selectPromisingNode(Node rootNode) {
+    private static Node selection(Node rootNode) {
         Node node = rootNode;
         while (!node.childArray.isEmpty()) {
-            node = findBestNode(node);
+            node = findBestNodeWithUCT(node);
         }
         return node;
     }
 
-    private static void expandNode(Node node) {
+    private static void expansion(Node node) {
         ArrayList<PentagoMove> legalMoves = node.state.getAllLegalMoves();
 
         for (int i = 0; i < legalMoves.size(); i++) {
@@ -109,23 +103,11 @@ public class StudentPlayer extends PentagoPlayer {
         }
     }
 
-    private static void backPropogation(Node leafNode, int winner) {
-        Node tmp = leafNode;
-
-        while (tmp != null) {
-            tmp.visitCount++;
-            if (winner == curPlayer) {
-                tmp.winCount++;
-            }
-            tmp = tmp.parent;
-        }
-    }
-
-    private static int simulateRandomPlayout(Node node) {
+    private static int simulation(Node node) {
         PentagoBoardState tmpState = (PentagoBoardState) node.state.clone();
         PentagoMove tmpMove;
 
-        // todo remove?
+        // TODO remove
         // check if game is over and opponent won
         if (opponent == tmpState.getWinner()) {
             node.parent.winCount = Integer.MIN_VALUE;
@@ -139,5 +121,16 @@ public class StudentPlayer extends PentagoPlayer {
         return tmpState.getWinner();
     }
 
+    private static void backPropogation(Node leafNode, int winner) {
+        Node tmp = leafNode;
+
+        while (tmp != null) {
+            tmp.visitCount++;
+            if (winner == curPlayer) {
+                tmp.winCount++;
+            }
+            tmp = tmp.parent;
+        }
+    }
 
 }

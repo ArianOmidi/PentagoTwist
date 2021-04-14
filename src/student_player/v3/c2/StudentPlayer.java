@@ -1,18 +1,17 @@
-package student_player.rave;
+package student_player.v3.c2;
 
 import boardgame.Board;
 import boardgame.Move;
 import pentago_twist.PentagoBoardState;
 import pentago_twist.PentagoMove;
 import pentago_twist.PentagoPlayer;
-import student_player.rave.MyTools.*;
+import student_player.v3.c2.MyTools.Node;
+import student_player.v3.c2.MyTools.Tree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import static student_player.rave.MyTools.*;
+import static student_player.v3.c2.MyTools.TIME_LIMIT;
+import static student_player.v3.c2.MyTools.findBestNodeWithUCT;
 
 /** A player file submitted by a student. */
 public class StudentPlayer extends PentagoPlayer {
@@ -26,7 +25,7 @@ public class StudentPlayer extends PentagoPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("RAVE");
+        super("C0055-v3");
     }
 
     /**
@@ -35,14 +34,8 @@ public class StudentPlayer extends PentagoPlayer {
      * make decisions.
      */
     public Move chooseMove(PentagoBoardState boardState) {
-        long start = System.currentTimeMillis();
-
         // Find move
         Move myMove = chooseMoveMCTS(boardState);
-
-        long end = System.currentTimeMillis();
-
-        System.out.format("Move Time: &.2fms" + (end - start));
 
         // Return your move to be processed by the server.
         return myMove;
@@ -92,7 +85,7 @@ public class StudentPlayer extends PentagoPlayer {
     private static Node selectPromisingNode(Node rootNode) {
         Node node = rootNode;
         while (!node.childArray.isEmpty()) {
-            node = findBestNode(node);
+            node = findBestNodeWithUCT(node);
         }
         return node;
     }
@@ -125,7 +118,7 @@ public class StudentPlayer extends PentagoPlayer {
         PentagoBoardState tmpState = (PentagoBoardState) node.state.clone();
         PentagoMove tmpMove;
 
-        // todo remove?
+        // TODO remove
         // check if game is over and opponent won
         if (opponent == tmpState.getWinner()) {
             node.parent.winCount = Integer.MIN_VALUE;

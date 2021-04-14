@@ -1,0 +1,2 @@
+1,RandomPlayer,260835976,0,RandomPlayer,13,game00001.log,
+2,260835976,RandomPlayer,0,260835976,7,game00002.log,

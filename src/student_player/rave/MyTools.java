@@ -34,6 +34,8 @@ public class MyTools {
 
             this.visitCount = 0;
             this.winCount = 0;
+
+            addToMap();
         }
 
         public Node() {
@@ -56,6 +58,17 @@ public class MyTools {
 
         public Node getChildWithMaxScore() {
             return Collections.max(this.childArray, Comparator.comparing(c -> c.winCount));
+        }
+
+        public void addToMap() {
+            if (map.get(state.toString()) == null) {
+                List<Node> l = new ArrayList<>();
+                l.add(this);
+                map.put(state.toString(), l);
+            } else {
+                List<Node> l = map.get(state.toString());
+                l.add(this);
+            }
         }
 
     }
@@ -88,7 +101,6 @@ public class MyTools {
             return ((double) nodeWinScore / (double) nodeVisit)
                     + EXPLORATION_PARAMETER * Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
         }
-
         double beta = ni / (nodeVisit + ni + 4 * b * ni * nodeVisit);
         return (1 - beta) * ((double) nodeWinScore / (double) nodeVisit)
                 + beta * ((double) wi / (double) ni)
@@ -96,6 +108,8 @@ public class MyTools {
     }
 
     public static Node findBestNode(Node node) {
+        System.out.println("Map Size: " + map.size());
+        System.out.println("Map: " + map);
         int parentVisit = node.visitCount;
         int ni = 0;
         int wi = 0;
@@ -105,8 +119,6 @@ public class MyTools {
             ni += nodes.get(i).visitCount;
             wi += nodes.get(i).winCount;
         }
-
-        if (ni == 0) ni = 1;
 
         int finalWi = wi;
         int finalNi = ni;
